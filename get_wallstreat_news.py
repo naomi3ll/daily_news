@@ -172,6 +172,94 @@ if __name__ == "__main__":
         print(f"链接: {item['link']}")
         print("-" * 50)
 
+
+def save_links_to_file(items, filepath, date=None):
+    """Save links (one per line) for the given date (Asia/Shanghai) to filepath.
+
+    - items: iterable of dicts containing 'link' and 'datetime' keys.
+    - filepath: path to write the newline-separated links.
+    - date: optional 'YYYY-MM-DD' string; if omitted, uses today's Beijing date.
+
+    Returns the number of links written.
+    """
+    if date is None:
+        date = datetime.now(ZoneInfo('Asia/Shanghai')).strftime('%Y-%m-%d')
+
+    links = []
+    for it in items:
+        dt = it.get('datetime', '')
+        link = it.get('link')
+        if not link:
+            continue
+        # Expect datetime like 'YYYY-MM-DD HH:MM:SS'
+        if isinstance(dt, str) and dt.startswith(date):
+            links.append(link)
+
+    # Deduplicate while preserving order
+    seen = set()
+    unique_links = []
+    for l in links:
+        if l in seen:
+            continue
+        seen.add(l)
+        unique_links.append(l)
+
+    # Ensure parent dir exists
+    try:
+        d = os.path.dirname(filepath)
+        if d:
+            os.makedirs(d, exist_ok=True)
+    except Exception:
+        pass
+
+    with open(filepath, 'w', encoding='utf-8') as f:
+        for l in unique_links:
+            f.write(l.rstrip('/') + '\n')
+
+    return len(unique_links)
+
+
+def _cli_write_links():
+    """Simple CLI entrypoint to write today's links to a file.
+    Usage: python get_wallstreat_news.py --links-out PATH
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Fetch WallStreetCN news and optionally save links to a file')
+    parser.add_argument('--links-out', help='Write today\'s links (one per line) to this file')
+    parser.add_argument('--no-cache', action='store_true', help='Disable cache when fetching')
+    args = parser.parse_args()
+
+    items = get_wallstreetcn_news(use_cache=not args.no_cache)
+    if args.links_out:
+        n = save_links_to_file(items, args.links_out)
+        print(f'Wrote {n} links to {args.links_out}')
+
+
+if __name__ == "__main__":
+    # Support legacy simple run and the new CLI mode
+    try:
+        # If arguments present, prefer CLI mode
+        import sys
+        if len(sys.argv) > 1:
+            _cli_write_links()
+        else:
+            # previously printed summary
+            news = get_wallstreetcn_news()
+            for item in news:
+                print(f"标题: {item['title']}")
+                print(f"时间: {item['datetime']}")
+                print(f"链接: {item['link']}")
+                print("-" * 50)
+    except Exception:
+        # Fallback to simple run
+        news = get_wallstreetcn_news()
+        for item in news:
+            print(f"标题: {item['title']}")
+            print(f"时间: {item['datetime']}")
+            print(f"链接: {item['link']}")
+            print("-" * 50)
+
 '''
 https://api-one.wallstcn.com/apiv1/content/lives?channel=global-channel&limit=30
 https://api.wscn.net/apiv1/content/information-flow

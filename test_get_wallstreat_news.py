@@ -1,5 +1,7 @@
 import re
-from get_wallstreat_news import get_wallstreetcn_news
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+from get_wallstreat_news import get_wallstreetcn_news, save_links_to_file
 
 def test_fetch_and_datetime_format():
     news = get_wallstreetcn_news(use_cache=False)
@@ -21,6 +23,23 @@ def test_cache_behavior():
     # now force no-cache
     c = get_wallstreetcn_news(use_cache=False)
     assert isinstance(c, list)
+
+
+def test_save_links_to_file(tmp_path):
+    today = datetime.now(ZoneInfo('Asia/Shanghai')).strftime('%Y-%m-%d')
+    yesterday = (datetime.now(ZoneInfo('Asia/Shanghai')) - timedelta(days=1)).strftime('%Y-%m-%d')
+    items = [
+        {'title': 'A', 'datetime': f'{today} 10:00:00', 'link': 'https://wallstreetcn.com/a'},
+        {'title': 'B', 'datetime': f'{today} 11:00:00', 'link': 'https://wallstreetcn.com/b'},
+        {'title': 'C', 'datetime': f'{yesterday} 09:00:00', 'link': 'https://wallstreetcn.com/old'},
+        # duplicate link
+        {'title': 'B duplicate', 'datetime': f'{today} 11:00:00', 'link': 'https://wallstreetcn.com/b'},
+    ]
+    out = tmp_path / 'links.txt'
+    n = save_links_to_file(items, str(out), date=today)
+    assert n == 2
+    text = out.read_text(encoding='utf-8').strip().splitlines()
+    assert text == ['https://wallstreetcn.com/a', 'https://wallstreetcn.com/b']
 
 
 if __name__ == '__main__':
