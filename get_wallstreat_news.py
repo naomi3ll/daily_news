@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import time
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
@@ -78,15 +79,21 @@ def get_wallstreetcn_news(use_cache: bool = True, cache_ttl: int = 60, retries: 
                     display_time = resource.get('display_time')
                     if display_time:
                         try:
-                            # include time (HH:MM:SS)
-                            datetime_str = datetime.fromtimestamp(int(display_time)).strftime('%Y-%m-%d %H:%M:%S')
+                            # interpret epoch as UTC then convert to Beijing time
+                            dt = datetime.fromtimestamp(int(display_time), tz=ZoneInfo('UTC'))
+                            datetime_str = dt.astimezone(ZoneInfo('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
                         except Exception:
-                            datetime_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                            datetime_str = datetime.now(ZoneInfo('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
                     else:
-                        datetime_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        datetime_str = datetime.now(ZoneInfo('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
+                    # include resource type if present
+                    resource_type = it.get('resource_type') or resource.get('type') or resource.get('resource_type')
 
                     if title and link:
-                        news_items.append({'title': title, 'datetime': datetime_str, 'link': link})
+                        item = {'title': title, 'datetime': datetime_str, 'link': link}
+                        if resource_type:
+                            item['type'] = resource_type
+                        news_items.append(item)
                 except Exception as e:
                     # skip malformed item
                     print(f"解析 API 项目时出错: {e}")
@@ -117,11 +124,11 @@ def get_wallstreetcn_news(use_cache: bool = True, cache_ttl: int = 60, retries: 
                     if time_element:
                         # try to normalize time if it contains a timestamp or full datetime
                         datetime_str = time_element.get_text(strip=True)
-                        # If only date present, append current time
+                        # If only date present, append current time (Beijing)
                         if re.match(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}$', datetime_str):
-                            datetime_str = datetime_str + ' ' + datetime.now().strftime('%H:%M:%S')
+                            datetime_str = datetime_str + ' ' + datetime.now(ZoneInfo('Asia/Shanghai')).strftime('%H:%M:%S')
                     else:
-                        datetime_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        datetime_str = datetime.now(ZoneInfo('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
                     if title and link:
                         news_items.append({'title': title, 'datetime': datetime_str, 'link': link})
                 except Exception as e:
@@ -135,8 +142,9 @@ def get_wallstreetcn_news(use_cache: bool = True, cache_ttl: int = 60, retries: 
             sample_news = [
                 {
                     'title': '示例新闻标题',
-                    'datetime': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                    'link': 'https://wallstreetcn.com/example'
+                    'datetime': datetime.now(ZoneInfo('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S'),
+                    'link': 'https://wallstreetcn.com/example',
+                    'type': 'article'
                 }
             ]
             return sample_news
