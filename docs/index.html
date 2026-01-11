@@ -2,135 +2,269 @@
 <html>
   <head>
     <meta charset='utf-8'/>
-    <meta name='description' content='每日华尔街见闻要闻 — 自动抓取并更新，展示最新财经新闻。' />
-    <meta property='og:title' content='WallStreetCN - 最新要闻' />
-    <meta property='og:description' content='每日华尔街见闻要闻 — 自动抓取并更新，展示最新财经新闻。' />
+    <meta name='description' content='多源财经新闻聚合 — 自动抓取并更新华尔街见闻、路透社等新闻源，展示最新财经资讯。' />
+    <meta property='og:title' content='每日新闻 - 财经资讯聚合' />
+    <meta property='og:description' content='多源财经新闻聚合 — 自动抓取并更新，展示最新财经资讯。' />
     <meta property='og:type' content='website' />
     <meta property='og:url' content='https://naomi3ll.github.io/daily_news' />
     <meta name='theme-color' content='#1478F0' />
-    <link rel='icon' href='data:image/svg+xml;utf8,&lt;svg xmlns=&#x27;http://www.w3.org/2000/svg&#x27; width=&#x27;36&#x27; height=&#x27;36&#x27; viewBox=&#x27;0 0 64 64&#x27; aria-hidden=&#x27;true&#x27;&gt;&lt;rect rx=&#x27;8&#x27; ry=&#x27;8&#x27; width=&#x27;64&#x27; height=&#x27;64&#x27; fill=&#x27;#1478F0&#x27;/&gt;&lt;text x=&#x27;50%&#x27; y=&#x27;54%&#x27; text-anchor=&#x27;middle&#x27; font-family=&#x27;Arial, sans-serif&#x27; font-size=&#x27;28&#x27; fill=&#x27;#fff&#x27; font-weight=&#x27;700&#x27;&gt;W&lt;/text&gt;&lt;/svg&gt;' />
+    <link rel='icon' href='data:image/svg+xml;utf8,&lt;svg xmlns=&#x27;http://www.w3.org/2000/svg&#x27; width=&#x27;36&#x27; height=&#x27;36&#x27; viewBox=&#x27;0 0 64 64&#x27; aria-hidden=&#x27;true&#x27;&gt;&lt;rect rx=&#x27;8&#x27; ry=&#x27;8&#x27; width=&#x27;64&#x27; height=&#x27;64&#x27; fill=&#x27;#1478F0&#x27;/&gt;&lt;text x=&#x27;50%&#x27; y=&#x27;54%&#x27; text-anchor=&#x27;middle&#x27; font-family=&#x27;Arial, sans-serif&#x27; font-size=&#x27;28&#x27; fill=&#x27;#fff&#x27; font-weight=&#x27;700&#x27;&gt;📰&lt;/text&gt;&lt;/svg&gt;' />
     <meta name='viewport' content='width=device-width,initial-scale=1' />
-    <title>WallStreetCN - Latest</title>
+    <title>每日新闻 - 财经资讯聚合</title>
     <style>
       :root{--bg:#f6f8fb;--card:#fff;--muted:#6b7280;--accent:#1478F0;--fg:#111;--title-color:#0f172a;--card-border:rgba(16,24,40,0.04);--shadow:0 1px 3px rgba(16,24,40,0.06);--badge-bg:#eef2ff}
       [data-theme='dark']{--bg:#0f1724;--card:#0b1220;--muted:#9fb0c2;--accent:#60a5fa;--fg:#eaf4ff;--title-color:#ffffff;--card-border:rgba(255,255,255,0.06);--shadow:0 2px 8px rgba(0,0,0,0.6);--badge-bg:rgba(96,165,250,0.12)}
       body{font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background:var(--bg); margin:0; padding:40px; color:var(--fg)}
-      .container{max-width:980px;margin:0 auto}
-      header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+      .container{max-width:1200px;margin:0 auto}
+      header{display:flex;align-items:center;justify-content:space-between;margin-bottom:30px;flex-wrap:wrap;gap:20px}
       .brand{display:flex;align-items:center;gap:12px}
-      .brand .logo{width:36;height:36;display:inline-block}
-      .theme-toggle{background:transparent;border:1px solid rgba(16,24,40,0.06);padding:6px 8px;border-radius:8px;cursor:pointer}
-      h1{font-size:20px;margin:0}
+      .brand .logo{width:40;height:40;display:inline-flex;align-items:center;justify-content:center;font-size:24px}
+      .theme-toggle{background:transparent;border:1px solid rgba(16,24,40,0.06);padding:6px 10px;border-radius:8px;cursor:pointer;color:var(--fg);font-size:13px}
+      .theme-toggle:hover{background:rgba(16,24,40,0.02)}
+      h1{font-size:24px;margin:0;font-weight:700}
+      .subtitle{color:var(--muted);font-size:14px;margin-top:4px}
       .generated{color:var(--muted);font-size:13px}
-      ul.cards{list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
-      li.card{background:var(--card);padding:16px;border-radius:8px;box-shadow:var(--shadow);border:1px solid var(--card-border)}
-      a.title{font-weight:600;color:var(--title-color);text-decoration:none;display:block;margin-bottom:8px;font-size:16px;line-height:1.3}
+      .stats{display:flex;gap:20px;margin-top:10px;font-size:13px}
+      .stat-item{display:flex;align-items:center;gap:6px}
+      .stat-value{font-weight:600;color:var(--accent)}
+      ul.cards{list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin:0}
+      li.card{background:var(--card);padding:16px;border-radius:8px;box-shadow:var(--shadow);border:1px solid var(--card-border);transition:all 0.2s ease}
+      li.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(16,24,40,0.12)}
+      a.title{font-weight:600;color:var(--title-color);text-decoration:none;display:block;margin-bottom:8px;font-size:15px;line-height:1.4;word-break:break-word}
       a.title:hover{color:var(--accent)}
-      .meta{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px}
-      .badge{background:var(--badge-bg);color:var(--accent);padding:3px 8px;border-radius:999px;font-size:12px}
-      footer{margin-top:36px;color:var(--muted);font-size:13px}
-      .github-banner{background:linear-gradient(90deg, rgba(20,120,240,0.06), rgba(20,120,240,0.02));padding:10px;border-radius:8px;margin-bottom:18px;display:flex;align-items:center;gap:10px}
+      .meta{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}
+      .badge{background:var(--badge-bg);color:var(--accent);padding:3px 8px;border-radius:999px;font-size:11px;font-weight:500}
+      footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--card-border);color:var(--muted);font-size:13px;text-align:center}
+      .github-banner{background:linear-gradient(90deg, rgba(20,120,240,0.06), rgba(20,120,240,0.02));padding:12px;border-radius:8px;margin-bottom:24px;display:flex;align-items:center;gap:10px}
       .github-banner a{text-decoration:none;color:var(--accent);font-weight:600}
-        .github-link svg{display:inline-block;vertical-align:middle;color:var(--accent)}
-        .github-link{display:inline-block;padding:4px;border-radius:6px}
-        .github-link:hover{background:rgba(16,24,40,0.04)}
+      .github-link svg{display:inline-block;vertical-align:middle;color:var(--accent)}
+      .github-link{display:inline-block;padding:4px;border-radius:6px;transition:all 0.2s}
+      .github-link:hover{background:rgba(16,24,40,0.04)}
+      @media(max-width:640px){
+        body{padding:20px}
+        header{flex-direction:column;align-items:flex-start}
+        h1{font-size:20px}
+        ul.cards{grid-template-columns:1fr}
+      }
+      .filters{display:flex;gap:8px;margin:16px 0;flex-wrap:wrap}
+      .filter-btn{padding:6px 12px;border:1px solid var(--card-border);background:var(--card);border-radius:6px;cursor:pointer;transition:all 0.2s;color:var(--fg);font-size:13px}
+      .filter-btn:hover{background:rgba(20,120,240,0.06)}
+      .filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+      .icon-btn{width:40px;height:36px;padding:6px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:none;background:transparent;color:var(--fg);cursor:pointer;transition:all 0.2s;}
+      .icon-btn:hover{background:rgba(20,120,240,0.06)}
+      .icon-btn svg{width:18px;height:18px;display:block}
+      .visually-hidden{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap;border:0;padding:0;margin:-1px}
+      .search-box{margin:16px 0}
+      .search-input{width:100%;max-width:400px;padding:8px 12px;border:1px solid var(--card-border);border-radius:6px;background:var(--card);color:var(--fg);font-size:14px}
+      .search-input::placeholder{color:var(--muted)}
+      .empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+      .empty-state-icon{font-size:48px;margin-bottom:16px}
+      /* Back to top button */
+      .back-to-top{position:fixed;bottom:30px;right:30px;width:44px;height:44px;background:var(--accent);color:#fff;border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 12px rgba(20,120,240,0.3);transition:all 0.3s ease;opacity:0;pointer-events:none;z-index:999}
+      .back-to-top.visible{opacity:1;pointer-events:auto}
+      .back-to-top:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(20,120,240,0.4)}
+      .back-to-top:active{transform:translateY(0)}
+      @media(max-width:640px){.back-to-top{width:40px;height:40px;bottom:20px;right:20px;font-size:18px}}
+      /* List / Compact view styles */
+      ul.cards.list-view { display: block; }
+      ul.cards.list-view li.card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        padding: 10px 16px;
+        border-radius: 6px;
+        border: none;
+        background: transparent;
+        box-shadow: none;
+      }
+      ul.cards.list-view .title { margin-bottom: 0; flex: 1; }
+      ul.cards.list-view .meta { margin-left: 20px; white-space: nowrap; }
     </style>
   </head>
   <body>
     <div class='container'>
       <div class='github-banner'>
         <div style='display:flex;align-items:center;gap:10px'>
-          <div class='logo' aria-hidden='true'><svg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 64 64' aria-hidden='true'><rect rx='8' ry='8' width='64' height='64' fill='#1478F0'/><text x='50%' y='54%' text-anchor='middle' font-family='Arial, sans-serif' font-size='28' fill='#fff' font-weight='700'>W</text></svg></div>
+          <div class='logo' aria-hidden='true' style='font-size:24px'>📰</div>
           <div>Automatically generated by <a href='https://github.com/naomi3ll/daily_news' target='_blank' rel='noopener noreferrer'>daily_news</a>. Enable <strong>GitHub Pages</strong> to publish this page.</div>
         </div>
         <div style='margin-left:auto'><a class='github-link' href='https://github.com/naomi3ll/daily_news' target='_blank' rel='noopener noreferrer' aria-label='View on GitHub' title='View on GitHub'><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='20' height='20' aria-hidden='true' fill='currentColor'><path d='M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.78-.25.78-.55 0-.27-.01-1-0.02-1.97-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.26-1.69-1.26-1.69-1.03-.7.08-.69.08-.69 1.14.08 1.74 1.17 1.74 1.17 1.01 1.73 2.65 1.23 3.3.94.1-.74.4-1.23.73-1.52-2.56-.29-5.26-1.28-5.26-5.72 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.45.11-3.02 0 0 .96-.31 3.15 1.18.92-.26 1.9-.39 2.88-.39.98 0 1.96.13 2.88.39 2.19-1.49 3.15-1.18 3.15-1.18.62 1.57.23 2.73.11 3.02.73.81 1.18 1.84 1.18 3.1 0 4.45-2.7 5.43-5.28 5.71.41.35.78 1.04.78 2.1 0 1.52-.01 2.75-.01 3.13 0 .3.21.65.79.54C20.71 21.39 24 17.08 24 12c0-6.27-5.23-11.5-12-11.5z'/></svg></a></div>
       </div>
 
       <header>
-        <div class='brand'><div class='logo' aria-hidden='true'><svg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 64 64' aria-hidden='true'><rect rx='8' ry='8' width='64' height='64' fill='#1478F0'/><text x='50%' y='54%' text-anchor='middle' font-family='Arial, sans-serif' font-size='28' fill='#fff' font-weight='700'>W</text></svg></div><h1>WallStreetCN · 最新</h1></div>
+        <div>
+          <div class='brand'><div class='logo' style='font-size:32px'>📰</div><div><h1>每日新闻</h1><p class='subtitle'>财经资讯聚合平台</p></div></div>
+        </div>
         <div style='text-align:right'>
-          <div class='generated'>生成时间： 北京时间 2025-12-30 20:41:20</div>
-          <button class='theme-toggle' id='themeToggle'>切换深色/浅色</button>
+          <div class='generated'>更新时间： 2026-01-11 21:46:05</div>
+          <button class='theme-toggle' id='themeToggle'>🌙 切换主题</button>
         </div>
       </header>
+      
+      <div class='stats'>
+        <div class='stat-item'><span>📊 共</span><span class='stat-value'>140</span><span>条新闻</span></div>
+      </div>
+
+      <div class='search-box'>
+        <input type='text' class='search-input' id='searchInput' placeholder='🔍 搜索新闻标题...'>
+      </div>
+
+      <div class='filters'>
+        <button class='filter-btn active' data-filter='all'>全部</button>
+        <button class='filter-btn' data-filter='wallstreetcn'>华尔街见闻</button>
+        <button class='filter-btn' data-filter='reuters'>路透社</button>
+        <button class='icon-btn' id='viewToggle' data-view='card' aria-pressed='false' aria-label='切换到列表视图' title='当前：卡片视图（点击切换到列表视图）' style='margin-left:auto'><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor' stroke='none'><rect x='4' y='4' width='7' height='7' rx='1'/><rect x='13' y='4' width='7' height='7' rx='1'/><rect x='4' y='13' width='7' height='7' rx='1'/><rect x='13' y='13' width='7' height='7' rx='1'/></svg><span class='visually-hidden'>切换视图</span></button>
+      </div>
+
+      <div id='newsContainer' style='margin-top:24px'>
       <ul class='cards'>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762322' target='_blank' rel='noopener noreferrer' class='title'>明年起，个人出售购买满2年的住房，免征增值税</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 20:05:59</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762321' target='_blank' rel='noopener noreferrer' class='title'>供应过剩压力山大，本周OPEC+拟按兵不动，维持暂停增产计划</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 19:25:26</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762320' target='_blank' rel='noopener noreferrer' class='title'>台积电2nm，悄然量产</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 19:21:32</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762316' target='_blank' rel='noopener noreferrer' class='title'>数十亿美金收购在赌什么？Manus倒向Meta的N个关键解读</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 19:14:44</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/livenews/3028753' target='_blank' rel='noopener noreferrer' class='title'>两部门：个人将购买2年以上（含2年）的住房对外销售的，免征增值税</a> <div class='meta'><span class='badge'>live</span><time>2025-12-30 19:04:03</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/themes/1008381' target='_blank' rel='noopener noreferrer' class='title'>中国AI独角兽的进阶之路</a> <div class='meta'><span class='badge'>theme</span><time>2025-12-30 20:41:20</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762317' target='_blank' rel='noopener noreferrer' class='title'>量价齐升推动业绩大涨，紫金矿业2025年净利润同比预增六成 | 财报见闻</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 19:00:42</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762318' target='_blank' rel='noopener noreferrer' class='title'>Manus“上岸”</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 18:54:22</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762311' target='_blank' rel='noopener noreferrer' class='title'>吴恩达年终总结：2025年或将被铭记为AI工业时代的黎明</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 18:25:17</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/livenews/3028726' target='_blank' rel='noopener noreferrer' class='title'>前鹏华基金知名基金经理王宗合逝世</a> <div class='meta'><span class='badge'>live</span><time>2025-12-30 18:23:25</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/livenews/3028718' target='_blank' rel='noopener noreferrer' class='title'>2026年第一批625亿元超长期特别国债支持消费品以旧换新资金计划已提前下达</a> <div class='meta'><span class='badge'>live</span><time>2025-12-30 18:08:16</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/themes/1008379' target='_blank' rel='noopener noreferrer' class='title'>年终特辑：盘点2025年资本市场那些事儿！</a> <div class='meta'><span class='badge'>theme</span><time>2025-12-30 20:41:20</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762313' target='_blank' rel='noopener noreferrer' class='title'>2026年国补方案出炉：新增智能产品，剔除家装、电动自行车，调整家电、汽车补贴标准</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 18:06:06</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762310' target='_blank' rel='noopener noreferrer' class='title'>四部门：推进汽车行业数字化转型，探索建设行业公共算力基础设施，重点攻关智能机器人等关键装备</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 18:03:06</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/member/articles/3762312' target='_blank' rel='noopener noreferrer' class='title'>AI Power：AIDC算力浪潮下的基石与机遇</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 17:59:10</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762306' target='_blank' rel='noopener noreferrer' class='title'>Alpha年度会员邀你加入！参加49场闭门私享，听60位顶级智囊讲真心话</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 17:21:15</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/themes/1008380' target='_blank' rel='noopener noreferrer' class='title'>投行重磅展望2026！</a> <div class='meta'><span class='badge'>theme</span><time>2025-12-30 20:41:20</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/livenews/3028677' target='_blank' rel='noopener noreferrer' class='title'>特斯拉第900万辆电动车在上海超级工厂下线</a> <div class='meta'><span class='badge'>live</span><time>2025-12-30 17:13:23</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/livenews/3028676' target='_blank' rel='noopener noreferrer' class='title'>国投白银LOF：A类基金份额二级市场交易价格波动较大，请投资者密切关注基金份额净值</a> <div class='meta'><span class='badge'>live</span><time>2025-12-30 17:05:55</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762309' target='_blank' rel='noopener noreferrer' class='title'>李强：细化纳税人和征税范围，确定不同情形应纳税额计算方法</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 17:01:36</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762308' target='_blank' rel='noopener noreferrer' class='title'>印尼拟于2026年减产，推动镍价升至九个月新高</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 16:47:40</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762305' target='_blank' rel='noopener noreferrer' class='title'>市场静待美联储会议纪要，美股指期货、美元、美债持平，在岸人民币破7，现货白银反弹近4%</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 16:38:06</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/themes/1008378' target='_blank' rel='noopener noreferrer' class='title'>Alpha峰会｜2026投资前瞻：AI、周期与全球变量</a> <div class='meta'><span class='badge'>theme</span><time>2025-12-30 20:41:20</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762287' target='_blank' rel='noopener noreferrer' class='title'>沪指10连阳，机器人、AI智能体爆发，恒科指涨近2%，半导体领涨，英矽智能港股IPO涨约25%，国投白银LOF震荡调整，在岸人民币破7</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 16:33:46</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/livenews/3028654' target='_blank' rel='noopener noreferrer' class='title'>腾讯混元开源翻译模型1.5，端侧可部署</a> <div class='meta'><span class='badge'>live</span><time>2025-12-30 16:25:17</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/member/articles/3762304' target='_blank' rel='noopener noreferrer' class='title'>后鲍威尔时代：鲍威尔留任理事的尾部风险</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 15:31:10</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762303' target='_blank' rel='noopener noreferrer' class='title'>&quot;自买自卖&quot;规模突破千亿美元！私募基金&quot;左手倒右手&quot;交易创历史新高</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 15:30:23</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762300' target='_blank' rel='noopener noreferrer' class='title'>泡泡玛特热潮遇冷：黄牛停止囤货，Labubu溢价神话正在破灭</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 15:28:20</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/livenews/3028630' target='_blank' rel='noopener noreferrer' class='title'>中方如何评论Meta将收购Manus？外交部：建议记者向主管部门询问</a> <div class='meta'><span class='badge'>live</span><time>2025-12-30 15:27:34</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762302' target='_blank' rel='noopener noreferrer' class='title'>供应链担忧推动年末反弹，铜价暴涨40%创2009年来最大年度涨幅</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 15:12:58</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/livenews/3028612' target='_blank' rel='noopener noreferrer' class='title'>韩国总统李在明将访华</a> <div class='meta'><span class='badge'>live</span><time>2025-12-30 15:03:31</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/livenews/3028596' target='_blank' rel='noopener noreferrer' class='title'>韩国首尔综指2025年累计涨75.6%，涨幅创1999年以来最大</a> <div class='meta'><span class='badge'>live</span><time>2025-12-30 14:36:12</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762128' target='_blank' rel='noopener noreferrer' class='title'>特朗普关税风暴、美以伊中东“大乱斗”、美联储“换帅”风云......一文盘点2025年全球十大宏观事件</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 14:30:55</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762296' target='_blank' rel='noopener noreferrer' class='title'>香港IPO市场强劲收官：六家内地企业集中上市，单日募资9亿美元</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 14:30:10</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762297' target='_blank' rel='noopener noreferrer' class='title'>金属走势分化，白银反弹4%收复部分失地，黄金涨超1%，伦铜涨近3%，钯金触及跌停</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 14:29:47</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762295' target='_blank' rel='noopener noreferrer' class='title'>Manus被Meta数十亿美元收购背后：创始人肖弘复盘至暗时刻</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 13:53:26</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762294' target='_blank' rel='noopener noreferrer' class='title'>在岸人民币兑美元升破7，为2023年5月来最高</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 13:52:22</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762293' target='_blank' rel='noopener noreferrer' class='title'>Manus被收购，智谱也定了8天后上市</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 13:41:51</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/livenews/3028555' target='_blank' rel='noopener noreferrer' class='title'>胖东来集团2025年销售额达234亿元</a> <div class='meta'><span class='badge'>live</span><time>2025-12-30 13:23:15</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/charts/41958332' target='_blank' rel='noopener noreferrer' class='title'>如果用黄金算，美股已经跌了25年</a> <div class='meta'><span class='badge'>live</span><time>2025-12-30 12:42:40</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762279' target='_blank' rel='noopener noreferrer' class='title'>成立不到3年，被Meta以逾20亿美元收购！Manus成为“AI时代中国创业新标杆”</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 12:34:09</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/livenews/3028528' target='_blank' rel='noopener noreferrer' class='title'>雷军：我将做一场跨年直播 工程师将现场拆车</a> <div class='meta'><span class='badge'>live</span><time>2025-12-30 12:21:52</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762292' target='_blank' rel='noopener noreferrer' class='title'>中央农村工作会议：加强农业关键核心技术攻关和科技成果高效转化应用，因地制宜发展农业新质生产力</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 11:26:33</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/member/articles/3762269' target='_blank' rel='noopener noreferrer' class='title'>银价上蹿下跳 什么程度就“差不多”该收手了？</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 11:12:08</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762283' target='_blank' rel='noopener noreferrer' class='title'>“安然破产案”25年后，“安达信”上市了！</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 10:56:44</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762286' target='_blank' rel='noopener noreferrer' class='title'>6周内3换审计师！“特朗普币圈资产”Alt5 Sigma陷入财务麻烦？</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 10:49:13</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762291' target='_blank' rel='noopener noreferrer' class='title'>华为轮值董事长孟晚舟新年致辞：追风赶月莫停留，平芜尽处是春山</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 10:44:25</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762271' target='_blank' rel='noopener noreferrer' class='title'>黄仁勋点赞的AI制药公司，英矽智能今日港股IPO</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 10:18:39</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762288' target='_blank' rel='noopener noreferrer' class='title'>智谱启动招股：获北京核心国资等30亿港元认购，估值超500亿，1月8日上市</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 10:14:58</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3757165' target='_blank' rel='noopener noreferrer' class='title'>年度硬核好礼——“2026见闻历企业定制”进入最后征集阶段</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 09:49:29</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762285' target='_blank' rel='noopener noreferrer' class='title'>以史为鉴，黄金“超涨”了吗？</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 09:36:28</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762281' target='_blank' rel='noopener noreferrer' class='title'>白银骤跌，交易员四处找原因，高盛亚洲交易台：“没有确凿证据”</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 09:28:24</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/charts/41958331' target='_blank' rel='noopener noreferrer' class='title'>1962年，32岁的巴菲特，已经把股市看得这么透彻了</a> <div class='meta'><span class='badge'>live</span><time>2025-12-30 09:26:39</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762282' target='_blank' rel='noopener noreferrer' class='title'>40亿美元，15%溢价！孙正义收购美国数据中心运营商DigitalBridge，后者为特朗普盟友创立</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 09:19:21</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762284' target='_blank' rel='noopener noreferrer' class='title'>华泰：指数权重调整造成金银短期技术扰动，白银被动配售压力或强于黄金</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 09:09:46</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762280' target='_blank' rel='noopener noreferrer' class='title'>乌克兰想要“50年安全保障”，而特朗普只想给“15年”</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 09:03:43</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/livenews/3028417' target='_blank' rel='noopener noreferrer' class='title'>贵金属期货主力合约全线大跌，铂跌停</a> <div class='meta'><span class='badge'>live</span><time>2025-12-30 09:00:22</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/livenews/3028407' target='_blank' rel='noopener noreferrer' class='title'>华西证券：昨日百亿资金撤离贵金属</a> <div class='meta'><span class='badge'>live</span><time>2025-12-30 08:46:33</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762277' target='_blank' rel='noopener noreferrer' class='title'>铜的赔率如何？从极致铜金比说起</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 08:30:26</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/charts/41958330' target='_blank' rel='noopener noreferrer' class='title'>“全球AI顶会”NeurlPS 2025 Top 50 论文贡献者：中美“不相伯仲”</a> <div class='meta'><span class='badge'>live</span><time>2025-12-30 08:16:57</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762276' target='_blank' rel='noopener noreferrer' class='title'>白银暴涨之下，电池片企业将从控产保价变成停产放假！</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 08:15:51</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762278' target='_blank' rel='noopener noreferrer' class='title'>新年行情告终？投资者“获利了结”，金银重挫</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 08:12:10</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/charts/41958329' target='_blank' rel='noopener noreferrer' class='title'>金银重挫，但历史对白银有利</a> <div class='meta'><span class='badge'>live</span><time>2025-12-30 07:55:31</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762216' target='_blank' rel='noopener noreferrer' class='title'>金属全线回落，白银较日高暴跌16%，黄金逼近4300美元，矿业股普跌</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 07:44:09</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/member/articles/3762275' target='_blank' rel='noopener noreferrer' class='title'>12月30日会员早报：贵金属周一美盘集体暴跌  美国11月成屋销售跃升</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 07:24:55</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762274' target='_blank' rel='noopener noreferrer' class='title'>华尔街见闻早餐FM-Radio | 2025年12月30日</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 07:22:03</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762238' target='_blank' rel='noopener noreferrer' class='title'>美股回调，金属全线回落，现货白银重挫8%，沪金跌破千元关口，原油反弹</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 07:14:37</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/livenews/3028363' target='_blank' rel='noopener noreferrer' class='title'>报道：Meta数十亿美元收购Manus，肖弘将出任Meta副总裁</a> <div class='meta'><span class='badge'>live</span><time>2025-12-30 06:26:24</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/livenews/3028353' target='_blank' rel='noopener noreferrer' class='title'>“大模型第一股”智谱：香港IPO定价116.2港元，拟发行逾3700万股</a> <div class='meta'><span class='badge'>live</span><time>2025-12-30 06:18:19</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762273' target='_blank' rel='noopener noreferrer' class='title'>特朗普会晤内塔尼亚胡，就伊朗核问题再次发出威胁</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 05:30:02</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/articles/3762272' target='_blank' rel='noopener noreferrer' class='title'>特朗普：正考虑以“严重失职”为由起诉鲍威尔，1月或公布下任美联储主席人选</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 05:18:18</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/livenews/3028315' target='_blank' rel='noopener noreferrer' class='title'>特朗普会晤内塔尼亚胡，就伊朗核问题再次发出威胁</a> <div class='meta'><span class='badge'>live</span><time>2025-12-30 02:42:27</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/member/articles/3762267' target='_blank' rel='noopener noreferrer' class='title'>银价上蹿下跳 什么才是其背后长期价值的“指南针”？</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 00:50:20</time></div></li>
-      <li class='card'><a href='https://wallstreetcn.com/member/articles/3762256' target='_blank' rel='noopener noreferrer' class='title'>消费强劲推迟美联储降息步伐，新产业发展促金属短期上涨，出升进降令中国贸易顺差新高---1229宏观脱水</a> <div class='meta'><span class='badge'>article</span><time>2025-12-30 00:49:51</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/markets/quote/.SPX/' target='_blank' rel='noopener noreferrer' class='title'>PositiveSPX</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:05</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/markets/quote/.IXIC/' target='_blank' rel='noopener noreferrer' class='title'>PositiveIXIC</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:05</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/markets/quote/.DJI/' target='_blank' rel='noopener noreferrer' class='title'>PositiveDJI</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:05</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/markets/quote/.STOXX/' target='_blank' rel='noopener noreferrer' class='title'>PositiveSTOXX</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:05</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/markets/quote/.FTSE/' target='_blank' rel='noopener noreferrer' class='title'>PositiveFTSE</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:05</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/markets/quote/.N225/' target='_blank' rel='noopener noreferrer' class='title'>PositiveN225</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:05</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/business/finance/bessent-says-overseas-money-transfers-are-fine-if-people-can-prove-origin-funds-2026-01-10/' target='_blank' rel='noopener noreferrer' class='title'>Bessent says overseas money transfers are fine if people can prove origin of funds</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:05</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/business/energy/rio-tintos-bid-glencore-piles-pressure-bhp-2026-01-10/' target='_blank' rel='noopener noreferrer' class='title'>Rio Tinto&#x27;s bid for Glencore piles pressure on BHP</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:05</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/middle-east/dar-global-trump-organization-launch-10-billion-saudi-developments-2026-01-11/' target='_blank' rel='noopener noreferrer' class='title'>Dar Global and Trump Organization launch $10 billion Saudi developments</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:05</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/business/media-telecom/musks-x-open-source-new-algorithm-seven-days-2026-01-10/' target='_blank' rel='noopener noreferrer' class='title'>Musk&#x27;s X to open source new algorithm in seven days</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:05</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/business/finance/bessent-goal-mbs-buys-is-match-fed-run-off-2026-01-10/' target='_blank' rel='noopener noreferrer' class='title'>Bessent: Goal of MBS buys is to match Fed run-off</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:05</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/china/global-markets-trading-day-graphic-2026-01-08/' target='_blank' rel='noopener noreferrer' class='title'>Trading Day: Defense over tech, payrolls nextJamie McGeever</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:05</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/markets/commodities/trumps-donroe-doctrine-targets-china-us-oil-firms-could-pay-price-2026-01-08/' target='_blank' rel='noopener noreferrer' class='title'>Trump’s ‘Donroe Doctrine’ targets China, US oil firms could pay the priceRon Bousso</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:05</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/markets/commodities/metals/nickel-gluts-zinc-deficits-lme-shadow-stocks-tell-story-2026-01-09/' target='_blank' rel='noopener noreferrer' class='title'>Nickel gluts to zinc deficits: LME shadow stocks tell the storyAndy Home</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:05</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/markets/quote/LCOc1/' target='_blank' rel='noopener noreferrer' class='title'>Brent Crude Oil</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:05</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/markets/quote/Sc1/' target='_blank' rel='noopener noreferrer' class='title'>CBOT Soybeans</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:05</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/markets/currencies' target='_blank' rel='noopener noreferrer' class='title'>Currencies</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:05</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/markets/stocks' target='_blank' rel='noopener noreferrer' class='title'>Stocks</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:05</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/markets/quote/.STOXX50E/' target='_blank' rel='noopener noreferrer' class='title'>Euro STOXX 50</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:05</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/asia-pacific/' target='_blank' rel='noopener noreferrer' class='title'>Asia Pacific</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/israel-hamas/' target='_blank' rel='noopener noreferrer' class='title'>Israel and Hamas at War</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/middle-east/' target='_blank' rel='noopener noreferrer' class='title'>Middle East</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/ukraine-russia-war/' target='_blank' rel='noopener noreferrer' class='title'>Ukraine and Russia at War</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/uk/' target='_blank' rel='noopener noreferrer' class='title'>United Kingdom</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/us/' target='_blank' rel='noopener noreferrer' class='title'>United States</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/reuters-next/' target='_blank' rel='noopener noreferrer' class='title'>Reuters NEXT New York</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/business/aerospace-defense/' target='_blank' rel='noopener noreferrer' class='title'>Aerospace &amp; Defense</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/business/autos-transportation/' target='_blank' rel='noopener noreferrer' class='title'>Autos &amp; Transportation</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/business/environment/' target='_blank' rel='noopener noreferrer' class='title'>Environment</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/business/healthcare-pharmaceuticals/' target='_blank' rel='noopener noreferrer' class='title'>Healthcare &amp; Pharmaceuticals</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/business/media-telecom/' target='_blank' rel='noopener noreferrer' class='title'>Media &amp; Telecom</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/business/retail-consumer/' target='_blank' rel='noopener noreferrer' class='title'>Retail &amp; Consumer</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/business/future-of-health/' target='_blank' rel='noopener noreferrer' class='title'>Future of Health</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/business/future-of-money/' target='_blank' rel='noopener noreferrer' class='title'>Future of Money</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/business/world-at-work/' target='_blank' rel='noopener noreferrer' class='title'>World at Work</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/markets/on-the-money/' target='_blank' rel='noopener noreferrer' class='title'>On the Money</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/markets/asia/' target='_blank' rel='noopener noreferrer' class='title'>Asian Markets</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/markets/carbon/' target='_blank' rel='noopener noreferrer' class='title'>Carbon Markets</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/markets/commodities/' target='_blank' rel='noopener noreferrer' class='title'>Commodities</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/markets/emerging/' target='_blank' rel='noopener noreferrer' class='title'>Emerging Markets</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/markets/europe/' target='_blank' rel='noopener noreferrer' class='title'>European Markets</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/markets/global-market-data/' target='_blank' rel='noopener noreferrer' class='title'>Global Market Data</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/markets/rates-bonds/' target='_blank' rel='noopener noreferrer' class='title'>Rates &amp; Bonds</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/markets/us/' target='_blank' rel='noopener noreferrer' class='title'>U.S. Markets</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/business/media-telecom/confronting-protests-iran-vows-strike-back-if-us-attacks-2026-01-11/' target='_blank' rel='noopener noreferrer' class='title'>Confronting protests, Iran vows to strike back if U.S. attacks</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/us/fatal-ice-shooting-minneapolis-activist-sets-stage-national-protests-2026-01-10/' target='_blank' rel='noopener noreferrer' class='title'>Tens of thousands protest in Minneapolis over fatal ICE shooting</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/europe/thousand-kyiv-apartment-blocks-still-without-heating-after-russian-strike-2026-01-11/' target='_blank' rel='noopener noreferrer' class='title'>A thousand Kyiv apartment blocks still without heating after Russian strike</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/middle-east/israeli-fire-kills-three-people-gaza-tension-rises-2026-01-11/' target='_blank' rel='noopener noreferrer' class='title'>Israeli fire kills three people in Gaza, tension rises</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/china/with-venezuela-raid-us-tells-china-keep-away-americas-2026-01-11/' target='_blank' rel='noopener noreferrer' class='title'>With Venezuela raid, US tells China to keep away from the Americas</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/middle-east/son-irans-toppled-shah-seeks-role-protests-expand-2026-01-11/' target='_blank' rel='noopener noreferrer' class='title'>Son of Iran&#x27;s toppled shah seeks a role as protests expand</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/asia-pacific/myanmar-votes-second-phase-military-run-election-2026-01-11/' target='_blank' rel='noopener noreferrer' class='title'>Myanmar votes again in military&#x27;s lopsided election</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/business/environment/australia-bushfires-burn-out-control-weeks-authorities-say-2026-01-10/' target='_blank' rel='noopener noreferrer' class='title'>Human remains found amid Australia bushfires, police say</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/china/nordics-reject-trumps-claim-chinese-russian-ships-around-greenland-ft-reports-2026-01-11/' target='_blank' rel='noopener noreferrer' class='title'>Nordics reject Trump&#x27;s claim of Chinese and Russian ships around Greenland, FT reports</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/business/media-telecom/hollywood-stars-battle-trophies-sundays-golden-globes-2026-01-11/' target='_blank' rel='noopener noreferrer' class='title'>Hollywood stars battle for trophies at Sunday&#x27;s Golden Globes</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/americas/sweden-highly-critical-us-rhetoric-greenland-denmark-says-pm-2026-01-11/' target='_blank' rel='noopener noreferrer' class='title'>Sweden &#x27;highly critical&#x27; of US rhetoric on Greenland and Denmark, says PM</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/americas/brazil-hand-back-argentine-diplomatic-representation-venezuela-2026-01-11/' target='_blank' rel='noopener noreferrer' class='title'>Brazil to hand back Argentine diplomatic representation in Venezuela</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/business/energy/us-push-quicker-action-reducing-reliance-china-rare-earths-2026-01-11/' target='_blank' rel='noopener noreferrer' class='title'>US to push for quicker action in reducing reliance on China for rare earths</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/americas/trump-suggests-cuba-should-strike-deal-with-us-2026-01-11/' target='_blank' rel='noopener noreferrer' class='title'>Trump delivers oil warning, suggesting Cuba should strike a deal with US</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/middle-east/israel-high-alert-possibility-us-intervention-iran-sources-say-2026-01-11/' target='_blank' rel='noopener noreferrer' class='title'>Israel on high alert for possibility of US intervention in Iran, sources say</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/german-foreign-minister-puts-emphasis-close-ties-before-us-trip-2026-01-11/' target='_blank' rel='noopener noreferrer' class='title'>German foreign minister puts emphasis on close ties before US trip</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/ukrainian-drone-attack-injures-four-damages-buildings-russias-voronezh-governor-2026-01-10/' target='_blank' rel='noopener noreferrer' class='title'>Woman dies, buildings damaged in Ukrainian drone attack on Russia&#x27;s Voronezh, governor says</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/china/china-voices-support-somalia-after-top-diplomat-postpones-visit-2026-01-11/' target='_blank' rel='noopener noreferrer' class='title'>China voices support for Somalia after top diplomat postpones visit</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/middle-east/syrian-army-says-it-finished-combing-through-aleppo-neighbourhood-signalling-2026-01-10/' target='_blank' rel='noopener noreferrer' class='title'>Last Kurdish fighters leave Syria&#x27;s Aleppo city after days of clashes</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='reuters'><a href='https://www.reuters.com/world/china/international-law-applies-everyone-including-us-says-german-finance-minister-2026-01-11/' target='_blank' rel='noopener noreferrer' class='title'>International law applies to everyone, including US, says German finance minister</a> <div class='meta'><span class='source-badge' style='background-color: #FF8000' title='路透社'>R</span><span class='badge'>article</span><time>2026-01-11 21:46:04</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/themes/1008384' target='_blank' rel='noopener noreferrer' class='title'>中美商业航天竞争加速</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>theme</span><time>2026-01-11 21:46:03</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/themes/1008382' target='_blank' rel='noopener noreferrer' class='title'>美国“闪击”委内瑞拉</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>theme</span><time>2026-01-11 21:46:03</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/themes/1008381' target='_blank' rel='noopener noreferrer' class='title'>中国AI独角兽的进阶之路</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>theme</span><time>2026-01-11 21:46:03</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/themes/1008380' target='_blank' rel='noopener noreferrer' class='title'>投行重磅展望2026！</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>theme</span><time>2026-01-11 21:46:03</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/themes/1008379' target='_blank' rel='noopener noreferrer' class='title'>年终特辑：盘点2025年资本市场那些事儿！</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>theme</span><time>2026-01-11 21:46:03</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/themes/1008378' target='_blank' rel='noopener noreferrer' class='title'>Alpha峰会｜2026投资前瞻：AI、周期与全球变量</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>theme</span><time>2026-01-11 21:46:03</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/livenews/3034741' target='_blank' rel='noopener noreferrer' class='title'>伊朗总统：政府认可和平抗议行为，愿与抗议团体会面</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>live</span><time>2026-01-11 21:25:49</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/livenews/3034737' target='_blank' rel='noopener noreferrer' class='title'>特朗普：将不会再有石油或资金流入古巴</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>live</span><time>2026-01-11 20:53:10</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3757165' target='_blank' rel='noopener noreferrer' class='title'>年度硬核好礼——“2026见闻历企业定制”进入最后征集阶段</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-11 19:59:41</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/livenews/3034720' target='_blank' rel='noopener noreferrer' class='title'>以色列要求欧盟将伊朗伊斯兰革命卫队列为“恐怖组织”</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>live</span><time>2026-01-11 19:42:07</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/livenews/3034718' target='_blank' rel='noopener noreferrer' class='title'>伊朗总统：美以指使“暴徒”在伊朗制造不稳定局势</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>live</span><time>2026-01-11 19:37:08</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3762924' target='_blank' rel='noopener noreferrer' class='title'>下周重磅日程：美国通胀、中国外贸数据，美股财报季正式开启，美高院关税裁决将出</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-11 19:30:44</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/livenews/3034703' target='_blank' rel='noopener noreferrer' class='title'>专家认为应理性看待中国新申报卫星网络资料</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>live</span><time>2026-01-11 18:44:20</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/livenews/3034695' target='_blank' rel='noopener noreferrer' class='title'>英国官员没有排除英在格陵兰岛部署军队的可能性</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>live</span><time>2026-01-11 18:14:09</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763040' target='_blank' rel='noopener noreferrer' class='title'>AI真的来了，经济扛得住吗？——“大空头”、“AI巨头”与“顶尖科技博主”的一场激辩</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-11 17:59:30</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763039' target='_blank' rel='noopener noreferrer' class='title'>A股历史上还没出现过连续3年“提估值”，26年能否打破？</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-11 17:19:40</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/charts/41958399' target='_blank' rel='noopener noreferrer' class='title'>2026最大的主题：输不起的懂王</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>live</span><time>2026-01-11 17:12:29</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763038' target='_blank' rel='noopener noreferrer' class='title'>2026最大的交易主题：输不起的特朗普，国际秩序的终结</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-11 16:45:20</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/member/articles/3762928' target='_blank' rel='noopener noreferrer' class='title'>海上商业航天：最强板块的新分支要来了？</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-11 16:05:37</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763037' target='_blank' rel='noopener noreferrer' class='title'>兔死狐悲？加拿大担心“自己是下一个格陵兰岛”</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-11 15:05:40</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/livenews/3034642' target='_blank' rel='noopener noreferrer' class='title'>稀土价格指数正式上线</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>live</span><time>2026-01-11 14:24:53</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/livenews/3034636' target='_blank' rel='noopener noreferrer' class='title'>全国商务工作会议：深入实施提振消费专项行动</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>live</span><time>2026-01-11 13:44:32</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763036' target='_blank' rel='noopener noreferrer' class='title'>加盟店大增的老乡鸡，何以在外卖大战中吃到甜头</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-11 12:50:27</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763035' target='_blank' rel='noopener noreferrer' class='title'>太空光伏与“轨道数据中心”：为什么下一代能源与算力的战场，会在800km的高空？</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-11 12:28:08</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/charts/41958398' target='_blank' rel='noopener noreferrer' class='title'>下周重磅日程：美国通胀、中国外贸数据，财报季正式开启，美高院关税裁决将出       </a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>live</span><time>2026-01-11 12:01:58</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763032' target='_blank' rel='noopener noreferrer' class='title'>美银Hartnett谈“一季度策略”：特朗普为中选“压通胀、降利率”，投资者“做多经济繁荣、做空AI泡沫”</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-11 11:51:25</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763034' target='_blank' rel='noopener noreferrer' class='title'>英媒爆料：特朗普已下令美军司令部制定“入侵”格陵兰岛计划，遭军方抵制</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-11 11:46:27</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763033' target='_blank' rel='noopener noreferrer' class='title'>中国“AI四巨头”罕见同台，阿里、腾讯、Kimi与智谱“论剑”：大模型的下一步与中国反超的可能性</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-11 11:32:44</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763031' target='_blank' rel='noopener noreferrer' class='title'>2026开年，亚洲科技股远远跑赢美国纳指</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-11 10:15:48</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763030' target='_blank' rel='noopener noreferrer' class='title'>特朗普再次威胁伊朗，被曝已听取军事打击方案汇报 伊朗军方：团结起来挫败敌人阴谋</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-11 09:51:23</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/livenews/3034603' target='_blank' rel='noopener noreferrer' class='title'>特朗普被曝已听取军事打击伊朗方案汇报</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>live</span><time>2026-01-11 09:46:30</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763028' target='_blank' rel='noopener noreferrer' class='title'>马斯克宣布“X将在7天内公开所有算法”，包括推荐算法，以后每四周1次</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-11 09:21:49</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763029' target='_blank' rel='noopener noreferrer' class='title'>涨价，已成被动元件新常态</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-11 09:12:16</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3762550' target='_blank' rel='noopener noreferrer' class='title'>读懂“十五五”：国盛证券首席经济学家熊园带你解码宏观政策的底层逻辑，从政策语义逻辑前瞻趋势拐点</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-11 08:54:04</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763027' target='_blank' rel='noopener noreferrer' class='title'>2026年第一周给全球投资者的经验：动荡不止、军工不败</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-11 08:53:28</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/member/articles/3763026' target='_blank' rel='noopener noreferrer' class='title'>特朗普“缉毒”上瘾：要对墨西哥动手背后的“混合贸易战”</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-11 07:50:34</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/livenews/3034570' target='_blank' rel='noopener noreferrer' class='title'>特朗普暗示：突袭式军事行动，或成美未来海外用兵主要模式</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>live</span><time>2026-01-10 22:44:51</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763025' target='_blank' rel='noopener noreferrer' class='title'>大宗商品 - 长期，中期和短期的故事</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 20:26:21</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/livenews/3034545' target='_blank' rel='noopener noreferrer' class='title'>月之暗面创始人杨植麟：中国技术不仅要好用还要参与制定规则，未来大模型要推出到K100</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>live</span><time>2026-01-10 20:02:19</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763024' target='_blank' rel='noopener noreferrer' class='title'>闪迪：涨价，且必须全款！</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 19:51:48</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763019' target='_blank' rel='noopener noreferrer' class='title'>囤积商品的时代来临了</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 19:09:49</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763023' target='_blank' rel='noopener noreferrer' class='title'>特朗普：很快打击墨西哥境内</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 19:07:54</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763018' target='_blank' rel='noopener noreferrer' class='title'>美元“连跌两年”是“历史规律”，1995年是今年的最佳对照</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 18:31:18</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763021' target='_blank' rel='noopener noreferrer' class='title'>加速布局！Space X获批再部署7500颗星链卫星，总数达1.5万颗</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 18:09:09</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763022' target='_blank' rel='noopener noreferrer' class='title'>穿越“首店狂欢”：达美乐中国的扩张与隐忧</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 18:06:40</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/livenews/3034525' target='_blank' rel='noopener noreferrer' class='title'>格陵兰岛各政党领导人：“格陵兰人不想成为美国人”</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>live</span><time>2026-01-10 17:15:24</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/charts/41958397' target='_blank' rel='noopener noreferrer' class='title'>懂王随手就读了，卢比奥都懵了</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>live</span><time>2026-01-10 16:59:49</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763017' target='_blank' rel='noopener noreferrer' class='title'>中国新增20万颗卫星申请，专家：卫星频轨资源申请已上升至国家战略层面</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 15:31:47</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3762998' target='_blank' rel='noopener noreferrer' class='title'>面对特朗普“强吞”格陵兰，欧洲是懵的</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 15:19:26</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763016' target='_blank' rel='noopener noreferrer' class='title'>高市早苗考虑提前大选</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 15:18:39</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763015' target='_blank' rel='noopener noreferrer' class='title'>从“房贷QE”到“信用卡限价”：当特朗普开始亲自定价利率</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 14:53:02</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763014' target='_blank' rel='noopener noreferrer' class='title'>全面代替美联储？房贷QE后，特朗普要给信用卡利率设“10%上限”</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 14:04:53</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763010' target='_blank' rel='noopener noreferrer' class='title'>大空头Burry做空甲骨文：不喜欢其定位和融资</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 12:51:46</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763006' target='_blank' rel='noopener noreferrer' class='title'>石油巨头齐聚白宫探讨委内瑞拉原油，特朗普“你们投千亿、政府不出钱”，美孚“没改革就没投资”</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 12:39:08</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/charts/41958396' target='_blank' rel='noopener noreferrer' class='title'>黄仁勋：英伟达的自动驾驶安全性全球第一，特斯拉第二</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>live</span><time>2026-01-10 12:29:24</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763013' target='_blank' rel='noopener noreferrer' class='title'>4000点之上，私募又迎“秒光” </a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 11:51:09</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763012' target='_blank' rel='noopener noreferrer' class='title'>信号比规模重要--高盛解读“特朗普版QE”</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 11:47:38</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763007' target='_blank' rel='noopener noreferrer' class='title'>罕见，百亿基金经理站上“被告席”</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 11:26:22</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763009' target='_blank' rel='noopener noreferrer' class='title'>报道：美国商务部撤销将中国制造无人机列入所谓“受管制清单”的计划</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 11:11:42</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763008' target='_blank' rel='noopener noreferrer' class='title'>格陵兰岛争端将如何演绎？</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 11:07:05</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763002' target='_blank' rel='noopener noreferrer' class='title'>地缘局势微妙，油价连涨3周</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 10:26:24</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763004' target='_blank' rel='noopener noreferrer' class='title'>2026年的第一周，全球风险资产齐涨，投资者“情绪高涨”</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 10:20:03</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3762999' target='_blank' rel='noopener noreferrer' class='title'>特朗普要代美联储“管房贷利率”？贝森特表态：“特朗普QE”目标是匹配美联储“缩表”</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 09:48:33</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763003' target='_blank' rel='noopener noreferrer' class='title'>中方加严管制两用物项，坚决遏制日本军国主义图谋</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 09:30:05</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/member/articles/3762919' target='_blank' rel='noopener noreferrer' class='title'>最高法院意外推迟关税裁定，最终结果或超市场意外</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 09:29:22</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/charts/41958395' target='_blank' rel='noopener noreferrer' class='title'>商品 vs  原油</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>live</span><time>2026-01-10 09:23:29</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/charts/41958394' target='_blank' rel='noopener noreferrer' class='title'>美元在“悄悄”突破</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>live</span><time>2026-01-10 09:18:18</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3763000' target='_blank' rel='noopener noreferrer' class='title'>全球市场“年初躁动”，一切都是流动性</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 09:09:53</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/livenews/3034470' target='_blank' rel='noopener noreferrer' class='title'>沃尔玛将被纳入纳斯达克100指数</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>live</span><time>2026-01-10 09:06:11</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3762997' target='_blank' rel='noopener noreferrer' class='title'>华尔街见闻早餐FM-Radio | 2026年1月10日</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 07:21:07</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3762994' target='_blank' rel='noopener noreferrer' class='title'>特朗普：将立即开卖多达5000万桶委内瑞拉石油，美国政府决定哪些企业在委投资</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 07:02:39</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3762954' target='_blank' rel='noopener noreferrer' class='title'>非农数据“温和”，标普新高，美元指数四连涨，黄金重回4500关口</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 07:00:21</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3762996' target='_blank' rel='noopener noreferrer' class='title'>特朗普放狠话：“无论难易”都要得到格陵兰岛，无论对方是否愿意</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 06:12:36</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3762995' target='_blank' rel='noopener noreferrer' class='title'>英特尔CEO会见特朗普，股价大涨超10%，美政府持仓市值翻倍</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 06:08:44</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/livenews/3034437' target='_blank' rel='noopener noreferrer' class='title'>特朗普称委内瑞拉反对派要员马查多下周访美</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>live</span><time>2026-01-10 05:54:30</time></div></li>
+        <li class='card' data-source='wallstreetcn'><a href='https://wallstreetcn.com/articles/3762992' target='_blank' rel='noopener noreferrer' class='title'>委内瑞拉宣布启动“探索性外交”，美代表团抵委评估重启使馆</a> <div class='meta'><span class='source-badge' style='background-color: #1478F0' title='华尔街见闻'>W</span><span class='badge'>article</span><time>2026-01-10 04:23:18</time></div></li>
       </ul>
-      <footer><p>Generated by GitHub Action &middot; Source: wallstreetcn.com</p></footer>
+      </div>
+      
+      <footer><p>Made with ❤️ by Daily News Aggregator | Source: wallstreetcn.com, reuters.com</p></footer>
     </div>
+    <button class='back-to-top' id='backToTop' title='回到顶部' aria-label='回到顶部'>↑</button>
     <script>
       // Theme toggle: default to LIGHT unless user previously saved a preference
       const toggle = document.getElementById('themeToggle');
@@ -138,7 +272,7 @@
       function setTheme(t){
         root.setAttribute('data-theme', t);
         localStorage.setItem('theme', t);
-        if(toggle) toggle.textContent = t === 'dark' ? '切换浅色' : '切换深色';
+        if(toggle) toggle.textContent = t === 'dark' ? '☀️ 切换浅色' : '🌙 切换深色';
       }
       const saved = localStorage.getItem('theme');
       if(saved) setTheme(saved);
@@ -147,6 +281,140 @@
         const cur = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         setTheme(cur);
       });
+
+      // Search and filter functionality
+      const searchInput = document.getElementById('searchInput');
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const container = document.getElementById('newsContainer');
+      
+      let currentFilter = 'all';
+      let searchTerm = '';
+      
+      function filterNews() {
+        const items = container.querySelectorAll('li.card');
+        let visibleCount = 0;
+        
+        items.forEach(item => {
+          const title = item.querySelector('.title').textContent.toLowerCase();
+          const source = item.getAttribute('data-source');
+          
+          const matchesSearch = searchTerm === '' || title.includes(searchTerm.toLowerCase());
+          const matchesFilter = currentFilter === 'all' || source === currentFilter;
+          
+          if (matchesSearch && matchesFilter) {
+            item.style.display = '';
+            visibleCount++;
+          } else {
+            item.style.display = 'none';
+          }
+        });
+        
+        // Show empty state if no results
+        if (visibleCount === 0) {
+          if (!container.querySelector('.empty-state')) {
+            const empty = document.createElement('div');
+            empty.className = 'empty-state';
+            empty.innerHTML = '<div class="empty-state-icon">😔</div><p>未找到匹配的新闻</p>';
+            container.appendChild(empty);
+          }
+        } else {
+          const empty = container.querySelector('.empty-state');
+          if (empty) empty.remove();
+        }
+      }
+      
+      searchInput.addEventListener('input', (e) => {
+        searchTerm = e.target.value;
+        filterNews();
+      });
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentFilter = btn.dataset.filter;
+          filterNews();
+        });
+      });
+
+      // View toggle: card <-> list
+      (function(){
+        const viewToggle = document.getElementById('viewToggle');
+        const VIEW_KEY = 'daily_news_view_mode';
+        const ICONS = { 
+          list: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="18" height="2" rx="1"/><rect x="3" y="9" width="18" height="2" rx="1"/><rect x="3" y="14" width="18" height="2" rx="1"/><rect x="3" y="19" width="18" height="2" rx="1"/></svg>',
+          card: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/></svg>'
+        };
+        
+        function applyView(mode) {
+          if(mode === 'list'){
+            document.querySelectorAll('ul.cards').forEach(u=>u.classList.add('list-view'));
+            viewToggle.innerHTML = ICONS.card + "<span class='visually-hidden'>切换视图</span>";
+            viewToggle.setAttribute('data-view','list');
+            viewToggle.setAttribute('aria-pressed','true');
+            viewToggle.setAttribute('aria-label','切换到卡片视图');
+            viewToggle.title = '当前：列表视图（点击切换到卡片视图）';
+          } else {
+            document.querySelectorAll('ul.cards').forEach(u=>u.classList.remove('list-view'));
+            viewToggle.innerHTML = ICONS.list + "<span class='visually-hidden'>切换视图</span>";
+            viewToggle.setAttribute('data-view','card');
+            viewToggle.setAttribute('aria-pressed','false');
+            viewToggle.setAttribute('aria-label','切换到列表视图');
+            viewToggle.title = '当前：卡片视图（点击切换到列表视图）';
+          }
+          try{ localStorage.setItem(VIEW_KEY, mode); }catch(e){}
+        }
+
+        try{
+          const saved = localStorage.getItem(VIEW_KEY);
+          applyView(saved === 'list' ? 'list' : 'card');
+        }catch(e){ applyView('card'); }
+
+        if(viewToggle){
+          viewToggle.addEventListener('click', function(){
+            const current = document.querySelectorAll('ul.cards')[0] && document.querySelectorAll('ul.cards')[0].classList.contains('list-view') ? 'list' : 'card';
+            applyView(current === 'list' ? 'card' : 'list');
+          });
+        }
+      })();
+
+      // Back to top button functionality
+      (function(){
+        const backToTopBtn = document.getElementById('backToTop');
+        if(!backToTopBtn) return;
+        
+        window.addEventListener('scroll', function(){
+          if(window.scrollY > 300){
+            backToTopBtn.classList.add('visible');
+          } else {
+            backToTopBtn.classList.remove('visible');
+          }
+        });
+        
+        backToTopBtn.addEventListener('click', function(){
+          window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+      })();
+
+      // Sentiment highlighting: highlight keywords in titles with colors
+      (function(){
+        const bullishWords = ['暴涨', '新高', '大涨', '突破', '获批', '增长', '牛市', '飙升', '高歌', '反弹', '创纪录', '刷新', '激增', '狂涨', '飞升', 'Surge', 'Jump', 'Record', 'Bull', 'Gain', 'Rally', 'Soar', 'Boom', 'surge', 'jump', 'record', 'bull', 'gain', 'rally', 'soar', 'boom'];
+        const bearishWords = ['暴跌', '崩盘', '调查', '制裁', '警告', '衰退', '下跌', '跌停', '腰斩', '暴降', '崩溃', '风险', '亏损', 'Plunge', 'Crash', 'Probe', 'Sanction', 'Warn', 'Recession', 'Decline', 'Fall', 'Slump', 'Loss', 'Risk', 'plunge', 'crash', 'probe', 'sanction', 'warn', 'recession', 'decline', 'fall', 'slump', 'loss', 'risk'];
+        
+        document.querySelectorAll('.title').forEach(link => {
+          let html = link.innerHTML;
+          
+          bullishWords.forEach(word => {
+            html = html.replace(new RegExp(word, 'gi'), `<span style="color:#ef4444;font-weight:800">${word}</span>`);
+          });
+          
+          bearishWords.forEach(word => {
+            html = html.replace(new RegExp(word, 'gi'), `<span style="color:#10b981;font-weight:800">${word}</span>`);
+          });
+          
+          link.innerHTML = html;
+        });
+      })();
     </script>
   </body>
 </html>
