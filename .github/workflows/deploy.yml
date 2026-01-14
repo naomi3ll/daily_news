@@ -53,6 +53,9 @@ jobs:
           echo "文件行数:"
           wc -l docs/index.html
           echo "=========================================="
+          echo "创建 .nojekyll 文件禁用 Jekyll"
+          touch docs/.nojekyll
+          echo "✓ 已创建 .nojekyll"
       
       - name: Configure Git
         run: |

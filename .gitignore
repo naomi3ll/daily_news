@@ -9,8 +9,9 @@ __pycache__/
 .coverage
 htmlcov/
 
-# Generated documentation (will be built by GitHub Actions)
-docs/index.html
+# Generated HTML (will be built by GitHub Actions)
+# but keep docs/ directory and .nojekyll
+docs/*.html
 
 # Virtual environments
 venv/
