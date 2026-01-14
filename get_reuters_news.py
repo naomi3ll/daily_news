@@ -10,15 +10,19 @@ import json
 import sys
 import os
 
-def get_reuters_news(use_cache: bool = True, cache_ttl: int = 60, retries: int = 3):
+def get_reuters_news(use_cache: bool = True, cache_ttl: int = 60, retries: int = 5):
     """
     从路透社获取当天的新闻链接清单
     返回数据格式为[{'title': 标题, 'datetime': '日期', 'link': '链接', 'source': 'reuters'}]
     """
+    # 支持多个备用 URL（如果某个 URL 无法访问）
     urls = [
         "https://www.reuters.com/world",
         "https://www.reuters.com/business",
         "https://www.reuters.com/markets",
+        # 备用 URL
+        "https://www.reuters.com/finance",
+        "https://www.reuters.com/technology",
     ]
     
     # 多个 User-Agent 轮询，避免被检测为爬虫
@@ -58,7 +62,7 @@ def get_reuters_news(use_cache: bool = True, cache_ttl: int = 60, retries: int =
     session = requests.Session()
     retry_strategy = Retry(
         total=retries,
-        backoff_factor=1.0,  # 增加退避时间
+        backoff_factor=1.5,  # 增加退避因子
         status_forcelist=[429, 500, 502, 503, 504],
         allowed_methods=["HEAD", "GET", "OPTIONS"]
     )
@@ -72,7 +76,7 @@ def get_reuters_news(use_cache: bool = True, cache_ttl: int = 60, retries: int =
     for url in urls:
         try:
             print(f"[Reuters] 获取 {url}", file=sys.stderr)
-            response = session.get(url, headers=headers, timeout=15)  # 增加超时时间
+            response = session.get(url, headers=headers, timeout=20)  # 增加到 20 秒
             response.raise_for_status()
             response.encoding = 'utf-8'
             
@@ -82,7 +86,14 @@ def get_reuters_news(use_cache: bool = True, cache_ttl: int = 60, retries: int =
             
             # Try different article selection strategies
             # Strategy 1: Look for article links with specific patterns
-            article_links = soup.find_all('a', href=re.compile(r'/article/|/world/|/business/|/markets/'))
+            article_links = soup.find_all('a', href=re.compile(r'/article/|/world/|/business/|/markets/|/finance/|/technology/'))
+            
+            # 如果没有找到，尝试找所有链接
+            if not article_links:
+                print(f"[Reuters] {url} 未找到标准文章链接，尝试其他方式...", file=sys.stderr)
+                article_links = soup.find_all('a', href=re.compile(r'^/[a-z]+/'))
+            
+            print(f"[Reuters] {url} 找到 {len(article_links)} 个链接", file=sys.stderr)
             
             seen = set()
             
@@ -174,9 +185,15 @@ def get_reuters_news(use_cache: bool = True, cache_ttl: int = 60, retries: int =
     
     print(f"[Reuters] 获取完成: 成功 {len(urls) - len(failed_urls)}/{len(urls)}, 共 {len(unique_items)} 条新闻", file=sys.stderr)
     
-    # 如果没有获取到任何新闻，记录警告
+    # 如果没有获取到任何新闻，记录详细的诊断信息
     if not unique_items:
-        print("[Reuters] 警告: 未获取到任何新闻，可能是网络问题或网站结构改变", file=sys.stderr)
+        print("[Reuters] 错误: 未获取到任何新闻", file=sys.stderr)
+        print(f"[Reuters] 失败的 URL: {failed_urls}", file=sys.stderr)
+        print("[Reuters] 可能原因:", file=sys.stderr)
+        print("[Reuters]   1. IP 地址被限制", file=sys.stderr)
+        print("[Reuters]   2. 网站结构改变", file=sys.stderr)
+        print("[Reuters]   3. 网络连接问题", file=sys.stderr)
+        print("[Reuters] 将尝试返回过期缓存数据...", file=sys.stderr)
     
     # If we got articles, cache them
     if unique_items:
