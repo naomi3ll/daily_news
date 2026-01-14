@@ -61,16 +61,18 @@ jobs:
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
+          git config --global advice.addIgnoredFile false
       
-      - name: Commit and push generated files
+      - name: Commit and push generated files (optional)
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        continue-on-error: true
         run: |
           git add -f docs/index.html docs/.nojekyll
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
             git commit -m "docs: update news page [skip ci]"
-            git push
+            git push || echo "Push failed, but GitHub Pages will be updated from artifact"
           fi
       
       - name: Upload artifact
