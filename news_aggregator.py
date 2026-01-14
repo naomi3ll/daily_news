@@ -71,14 +71,19 @@ class NewsAggregator:
         Returns:
             按时间倒序排列的新闻列表
         """
+        import sys
         all_items = []
         
         for source_name, source in self.sources.items():
             try:
+                print(f"[聚合] 正在从 {source_name} 获取新闻...", file=sys.stderr)
                 items = source.fetch(use_cache=use_cache, cache_ttl=cache_ttl)
+                print(f"[聚合] {source_name}: 成功获取 {len(items)} 条新闻", file=sys.stderr)
                 all_items.extend(items)
             except Exception as e:
-                print(f"从 {source_name} 获取新闻时出错: {e}")
+                print(f"[聚合] 从 {source_name} 获取新闻时出错: {type(e).__name__}: {e}", file=sys.stderr)
+        
+        print(f"[聚合] 合计获取 {len(all_items)} 条新闻", file=sys.stderr)
         
         # 按时间倒序排列（最新的在前）
         try:
@@ -87,7 +92,7 @@ class NewsAggregator:
                 reverse=True
             )
         except Exception as e:
-            print(f"排序新闻时出错: {e}")
+            print(f"[聚合] 排序新闻时出错: {e}", file=sys.stderr)
         
         return all_items
     

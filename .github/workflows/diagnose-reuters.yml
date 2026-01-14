@@ -1,0 +1,106 @@
+name: Diagnose Reuters News Issue
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Network diagnostics
+        run: |
+          echo "========== 网络诊断 =========="
+          echo "1. 检查 DNS 解析"
+          nslookup reuters.com || echo "DNS 解析失败"
+          
+          echo -e "\n2. 测试连接到 reuters.com"
+          timeout 10 curl -I -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
+            https://www.reuters.com/world || echo "连接失败"
+          
+          echo -e "\n3. 检查 Python 和网络库"
+          python -c "import requests; print(f'Requests 版本: {requests.__version__}')"
+          python -c "import urllib3; print(f'urllib3 版本: {urllib3.__version__}')"
+      
+      - name: Test Reuters fetch (with debug)
+        run: |
+          echo "========== 测试路透社新闻获取 =========="
+          python3 << 'EOF'
+          import sys
+          sys.path.insert(0, '.')
+          
+          print("[DEBUG] 导入模块...", file=sys.stderr)
+          from get_reuters_news import get_reuters_news
+          
+          print("[DEBUG] 开始获取路透社新闻...", file=sys.stderr)
+          items = get_reuters_news(use_cache=False)
+          
+          print(f"\n[结果] 成功获取 {len(items)} 条新闻", file=sys.stderr)
+          
+          if items:
+              print(f"\n[前3条新闻]:", file=sys.stderr)
+              for i, item in enumerate(items[:3], 1):
+                  print(f"{i}. {item['title'][:60]}...", file=sys.stderr)
+          else:
+              print("\n[警告] 未获取到任何新闻!", file=sys.stderr)
+          EOF
+      
+      - name: Test full news aggregation
+        run: |
+          echo "========== 测试完整聚合 =========="
+          python3 << 'EOF'
+          import sys
+          sys.path.insert(0, '.')
+          
+          from news_aggregator import fetch_all_news
+          
+          items = fetch_all_news(use_cache=False)
+          
+          print(f"\n总计: {len(items)} 条新闻", file=sys.stderr)
+          
+          # 按来源分类
+          sources = {}
+          for item in items:
+              source = item.get('source', 'unknown')
+              sources[source] = sources.get(source, 0) + 1
+          
+          for source, count in sorted(sources.items()):
+              print(f"  {source}: {count}", file=sys.stderr)
+          EOF
+      
+      - name: Generate page and check
+        run: |
+          echo "========== 生成页面 =========="
+          python scripts/generate_news_page.py
+          
+          echo -e "\n========== 生成结果检查 =========="
+          if [ -f docs/index.html ]; then
+              echo "✓ 文件存在"
+              ls -lh docs/index.html
+              echo "✓ 文件大小: $(stat -f%z docs/index.html 2>/dev/null || stat -c%s docs/index.html) 字节"
+              echo "✓ 总行数: $(wc -l < docs/index.html)"
+              
+              echo -e "\n检查内容..."
+              echo "路透社新闻数量:"
+              grep -c 'data-source="reuters"' docs/index.html || echo "0"
+              
+              echo "华尔街见闻新闻数量:"
+              grep -c 'data-source="wallstreetcn"' docs/index.html || echo "0"
+          else
+              echo "✗ 文件不存在!"
+              exit 1
+          fi

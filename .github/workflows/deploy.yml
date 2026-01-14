@@ -40,9 +40,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       
-      - name: Generate news page
+      - name: Generate news page (with debug output)
         run: |
+          echo "=========================================="
+          echo "开始生成新闻页面"
+          echo "=========================================="
           python scripts/generate_news_page.py
+          echo "=========================================="
+          echo "生成完成，检查文件"
+          echo "=========================================="
+          ls -lh docs/index.html
+          echo "文件行数:"
+          wc -l docs/index.html
+          echo "=========================================="
       
       - name: Configure Git
         run: |

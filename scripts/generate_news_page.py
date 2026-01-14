@@ -9,7 +9,7 @@ import html as _html
 # Ensure project root is on sys.path so imports work when script is executed from scripts/
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from news_aggregator import fetch_all_news
+from news_aggregator import fetch_all_news, fetch_news_by_source
 
 
 def calculate_hotness(item):
@@ -389,14 +389,35 @@ def render_html(items):
 
 
 def main():
+    print("=" * 60, file=sys.stderr)
+    print("开始生成新闻页面...", file=sys.stderr)
+    print("=" * 60, file=sys.stderr)
+    
     items = fetch_all_news(use_cache=False)
+    
+    print(f"\n总计获取 {len(items)} 条新闻:", file=sys.stderr)
+    
+    # 按来源统计
+    sources = {}
+    for item in items:
+        source = item.get('source', 'unknown')
+        sources[source] = sources.get(source, 0) + 1
+    
+    for source, count in sources.items():
+        print(f"  - {source}: {count} 条", file=sys.stderr)
+    
+    if not items:
+        print("\n警告: 未获取到任何新闻!", file=sys.stderr)
+    
+    print(f"\n正在生成 HTML...", file=sys.stderr)
     html = render_html(items)
     os.makedirs('docs', exist_ok=True)
     path = os.path.join('docs', 'index.html')
     with open(path, 'w', encoding='utf-8') as f:
         f.write(html)
-    print('Wrote', path)
-    print(f'Generated HTML with {len(items)} articles from multiple sources')
+    print(f"✓ 已保存到 {path}", file=sys.stderr)
+    print(f"✓ 包含 {len(items)} 条新闻", file=sys.stderr)
+    print("=" * 60, file=sys.stderr)
 
 
 if __name__ == '__main__':

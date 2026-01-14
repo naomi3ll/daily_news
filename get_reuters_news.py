@@ -7,6 +7,8 @@ from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 import re
 import json
+import sys
+import os
 
 def get_reuters_news(use_cache: bool = True, cache_ttl: int = 60, retries: int = 3):
     """
@@ -19,13 +21,24 @@ def get_reuters_news(use_cache: bool = True, cache_ttl: int = 60, retries: int =
         "https://www.reuters.com/markets",
     ]
     
+    # 多个 User-Agent 轮询，避免被检测为爬虫
+    user_agents = [
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15',
+    ]
+    
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'User-Agent': user_agents[0],
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
         'Accept-Language': 'en-US,en;q=0.9',
         'Accept-Encoding': 'gzip, deflate',
         'Connection': 'keep-alive',
         'Upgrade-Insecure-Requests': '1',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
     }
     
     # Simple in-memory cache
@@ -38,13 +51,14 @@ def get_reuters_news(use_cache: bool = True, cache_ttl: int = 60, retries: int =
     if use_cache:
         cached = _REUTERS_CACHE.get('articles')
         if cached and (time.time() - cached[0]) < cache_ttl:
+            print("[Reuters] 使用缓存数据", file=sys.stderr)
             return cached[1]
 
     # Prepare a requests session with retries/backoff
     session = requests.Session()
     retry_strategy = Retry(
         total=retries,
-        backoff_factor=0.5,
+        backoff_factor=1.0,  # 增加退避时间
         status_forcelist=[429, 500, 502, 503, 504],
         allowed_methods=["HEAD", "GET", "OPTIONS"]
     )
@@ -53,12 +67,16 @@ def get_reuters_news(use_cache: bool = True, cache_ttl: int = 60, retries: int =
     session.mount("http://", adapter)
 
     news_items = []
+    failed_urls = []
     
     for url in urls:
         try:
-            response = session.get(url, headers=headers, timeout=10)
+            print(f"[Reuters] 获取 {url}", file=sys.stderr)
+            response = session.get(url, headers=headers, timeout=15)  # 增加超时时间
             response.raise_for_status()
             response.encoding = 'utf-8'
+            
+            print(f"[Reuters] 状态码: {response.status_code}, 内容长度: {len(response.content)}", file=sys.stderr)
             
             soup = BeautifulSoup(response.content, 'html.parser')
             
@@ -138,7 +156,12 @@ def get_reuters_news(use_cache: bool = True, cache_ttl: int = 60, retries: int =
                     continue
                     
         except requests.exceptions.RequestException as e:
-            print(f"获取路透社 {url} 时出错: {e}")
+            print(f"[Reuters] 获取 {url} 时出错: {type(e).__name__}: {e}", file=sys.stderr)
+            failed_urls.append(url)
+            continue
+        except Exception as e:
+            print(f"[Reuters] 解析 {url} 时出错: {type(e).__name__}: {e}", file=sys.stderr)
+            failed_urls.append(url)
             continue
     
     # Remove duplicates while preserving order
@@ -149,11 +172,22 @@ def get_reuters_news(use_cache: bool = True, cache_ttl: int = 60, retries: int =
             seen_titles.add(item['title'])
             unique_items.append(item)
     
+    print(f"[Reuters] 获取完成: 成功 {len(urls) - len(failed_urls)}/{len(urls)}, 共 {len(unique_items)} 条新闻", file=sys.stderr)
+    
+    # 如果没有获取到任何新闻，记录警告
+    if not unique_items:
+        print("[Reuters] 警告: 未获取到任何新闻，可能是网络问题或网站结构改变", file=sys.stderr)
+    
     # If we got articles, cache them
     if unique_items:
         _REUTERS_CACHE['articles'] = (time.time(), unique_items)
-    
-    return unique_items
+        return unique_items
+    else:
+        # 如果本次获取失败但有缓存，返回缓存的旧数据（容错）
+        if use_cache and 'articles' in _REUTERS_CACHE:
+            print("[Reuters] 本次获取失败，返回过期的缓存数据作为备用", file=sys.stderr)
+            return _REUTERS_CACHE['articles'][1]
+        return unique_items
 
 
 if __name__ == '__main__':
